@@ -1,1 +1,5 @@
-# cyber-protection-against-scammers
+# CyberShield AI
+
+Локальный антифишинг-инструмент для проверки подозрительных SMS-сообщений, звонков, ссылок, QR-кодов и файлов APK/EXE.
+
+Открыть сайт: [CyberShield AI](./index.html)

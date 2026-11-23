@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberShield AI — Комплексная система защиты от мошенников</title>
+    <style>
+        :root {
+            --bg: #070b14;
+            --card: #0f172a;
+            --card-hover: #1e293b;
+            --accent: #00f0ff;
+            --accent-glow: rgba(0, 240, 255, 0.25);
+            --danger: #ff2a5f;
+            --danger-bg: rgba(255, 42, 95, 0.14);
+            --warning: #ffaa00;
+            --warning-bg: rgba(255, 170, 0, 0.14);
+            --safe: #00e676;
+            --safe-bg: rgba(0, 230, 118, 0.14);
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --border: #1e293b;
+        }
+        * { box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 0%, #111d38 0%, #070b14 70%);
+        }
+        .container { max-width: 900px; width: 100%; }
+        
+        /* Шапка */
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .badge {
+            display: inline-block;
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        h1 {
+            color: #fff;
+            margin: 0 0 6px 0;
+            font-size: 2rem;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 20px var(--accent-glow);
+        }
+        h1 span { color: var(--accent); }
+        p.subtitle { color: var(--muted); margin: 0; font-size: 0.95rem; }
+
+        .language-bar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            margin: -8px 0 12px;
+        }
+        .language-bar label { color: var(--muted); font-size: 0.82rem; }
+        #language-select {
+            max-width: 210px;
+            background: var(--card);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 7px 9px;
+            cursor: pointer;
+        }
+        #google_translate_element, .goog-te-banner-frame { display: none !important; }
+        body { top: 0 !important; }
+
+        /* Навигация */
+        .tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 650px) { .tabs { grid-template-columns: repeat(2, 1fr); } }
+        
+        .tab-btn {
+            padding: 14px 10px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.92rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .tab-btn:hover { background: var(--card-hover); border-color: #334155; }
+        .tab-btn.active {
+            border-color: var(--accent);
+            background: rgba(0, 240, 255, 0.12);
+            color: var(--accent);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
+        }
+
+        /* Панели */
+        .panel {
+            background: var(--card);
+            padding: 26px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+        .panel-desc {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-top: 0;
+            margin-bottom: 16px;
+            line-height: 1.45;
+        }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            background: #070b14;
+            border: 1px solid #334155;
+            color: var(--text);
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 0.98rem;
+            margin-bottom: 14px;
+            resize: vertical;
+            transition: 0.2s;
+        }
+        textarea:focus, input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.1); }
+
+        .examples { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+        .ex-btn {
+            background: #1e293b;
+            color: var(--muted);
+            border: 1px solid #334155;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .ex-btn:hover { color: #fff; border-color: var(--accent); }
+
+        /* Зона загрузки и Drag & Drop */
+        .upload-box {
+            border: 2px dashed #334155;
+            border-radius: 14px;
+            padding: 32px 20px;
+            text-align: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: 0.25s;
+            background: rgba(7, 11, 20, 0.5);
+        }
+        .upload-box:hover, .upload-box.dragover {
+            border-color: var(--accent);
+            background: rgba(0, 240, 255, 0.06);
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--accent);
+            color: #070b14;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.02rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .action-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        
+        .mic-btn { background: var(--danger); color: #fff; margin-bottom: 14px; }
+        .mic-btn.recording { animation: pulse 1.2s infinite; }
+
+        /* Блок результата */
+        #result {
+            margin-top: 22px;
+            padding: 22px;
+            border-radius: 14px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+            word-break: break-word;
+        }
+        .res-danger { background: var(--danger-bg); border: 1px solid var(--danger); }
+        .res-warning { background: var(--warning-bg); border: 1px solid var(--warning); }
+        .res-safe { background: var(--safe-bg); border: 1px solid var(--safe); }
+        
+        .res-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; }
+        .res-summary { font-size: 0.98rem; margin-bottom: 12px; line-height: 1.45; }
+        
+        .tech-box {
+            background: #070b14;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.82rem;
+            color: var(--accent);
+            margin: 12px 0;
+            border: 1px solid #1e293b;
+            line-height: 1.5;
+        }
+        ul.reasons { margin: 10px 0 0 0; padding-left: 20px; }
+        ul.reasons li { margin-bottom: 7px; line-height: 1.45; font-size: 0.94rem; }
+
+        .security-note {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 0.82rem;
+            color: var(--muted);
+            padding: 12px;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.65; } 100% { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="badge">SANDBOX PROTECTION • LOCAL ENGINE</div>
+        <h1>🛡️ CYBER<span>SHIELD</span> AI</h1>
+        <p class="subtitle">Детектор мошеннических звонков, СМС, фишинговых ссылок, QR-кодов и троянов APK/EXE</p>
+    </header>
+
+    <div class="language-bar">
+        <label for="language-select">🌐 Язык / Language:</label>
+        <select id="language-select" aria-label="Выбор языка">
+            <option value="ru">Русский</option>
+            <option value="uz">O'zbekcha</option>
+            <option value="en">English</option>
+            <option value="uk">Українська</option>
+            <option value="be">Беларуская</option>
+            <option value="pl">Polski</option>
+            <option value="de">Deutsch</option>
+            <option value="fr">Français</option>
+            <option value="es">Español</option>
+            <option value="pt">Português</option>
+            <option value="it">Italiano</option>
+            <option value="nl">Nederlands</option>
+            <option value="tr">Türkçe</option>
+            <option value="az">Azərbaycan</option>
+            <option value="kk">Қазақша</option>
+            <option value="ky">Кыргызча</option>
+            <option value="tg">Тоҷикӣ</option>
+            <option value="tk">Türkmençe</option>
+            <option value="ar">العربية</option>
+            <option value="fa">فارسی</option>
+            <option value="he">עברית</option>
+            <option value="hi">हिन्दी</option>
+            <option value="bn">বাংলা</option>
+            <option value="ur">اردو</option>
+            <option value="zh-CN">中文（简体）</option>
+            <option value="zh-TW">中文（繁體）</option>
+            <option value="ja">日本語</option>
+            <option value="ko">한국어</option>
+            <option value="th">ไทย</option>
+            <option value="vi">Tiếng Việt</option>
+            <option value="id">Bahasa Indonesia</option>
+            <option value="ms">Bahasa Melayu</option>
+            <option value="fil">Filipino</option>
+            <option value="el">Ελληνικά</option>
+            <option value="ro">Română</option>
+            <option value="cs">Čeština</option>
+            <option value="hu">Magyar</option>
+            <option value="sv">Svenska</option>
+            <option value="da">Dansk</option>
+            <option value="no">Norsk</option>
+            <option value="fi">Suomi</option>
+        </select>
+    </div>
+    <div id="google_translate_element"></div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('sms', this)">💬 СМС и схемы</button>
+        <button class="tab-btn" onclick="switchTab('voice', this)">🎙️ Живой звонок</button>
+        <button class="tab-btn" onclick="switchTab('file', this)">🦠 Файлы APK / EXE</button>
+        <button class="tab-btn" onclick="switchTab('link', this)">🔗 Ссылки (Фишинг)</button>
+        <button class="tab-btn" onclick="switchTab('qr', this)">📷 QR-код с фото</button>
+        <button class="tab-btn" onclick="switchTab('card', this)">💳 Проверка карты</button>
+    </div>
+
+    <!-- 1. ПРОВЕРКА СМС И СХЕМ СОЦИАЛЬНОЙ ИНЖЕНЕРИИ -->
+    <div id="tab-sms" class="panel">
+        <p class="panel-desc">Вставьте текст сообщения из Telegram, WhatsApp или СМС. Система распознает уловки банковских мошенников, «ошибочные переводы», фейковые голосования и схемы с «легким заработком».</p>
+        <div class="examples">
+            <span style="color:var(--muted); font-size:0.82rem; align-self:center;">Тест схем:</span>
+            <button class="ex-btn" onclick="fillInput('sms-input', 'Срочно! С вашей карты 8600****1234 пытаются списать деньги. Переведите средства на безопасный счет 9860 1122 3344 5566 или продиктуйте код из СМС.')">⚠️ Безопасный счет</button>
+            <button class="ex-btn" onclick="fillInput('sms-input', 'Привет! Проголосуй пожалуйста за мою племянницу в конкурсе, не хватает 2 голосов до победы! Вот ссылка: http://golos-konkurs.xyz')">⚠️ Угон ТГ (Голос)</button>
+            <button class="ex-btn" onclick="fillInput('sms-input', 'Извините, я случайно перевел вам 500 000 сум по ошибке! Верните пожалуйста на другую карту 8600 5544 3322 1100, очень срочно на лекарства!')">⚠️ Ошибочный перевод</button>
+            <button class="ex-btn" onclick="fillInput('sms-input', 'Зарабатывай от 300$ в день просто ставя лайки товарам! Выкуп VIP-задания гарантирует доход 40% за час.')">⚠️ Фейк-заработок</button>
+        </div>
+        <textarea id="sms-input" rows="4" placeholder="Вставьте текст подозрительного сообщения..."></textarea>
+        <button class="action-btn" onclick="analyzeText(document.getElementById('sms-input').value)">Проверить сообщение на мошенничество</button>
+    </div>
+
+    <!-- 2. ЖИВОЙ ЗВОНОК (МИКРОФОН) -->
+    <div id="tab-voice" class="panel" style="display:none;">
+        <p class="panel-desc">Включите громкую связь при подозрительном звонке и нажмите кнопку ниже. Браузер в реальном времени расшифрует речь собеседника через микрофон и подаст сигнал тревоги при попытке обмана.</p>
+        <p class="panel-desc">Внимание: встроенное распознавание речи может отправлять аудио и распознавать текст с помощью облачного сервиса браузера. Не используйте микрофон рядом с паролями или кодами подтверждения.</p>
+        <button id="mic-btn" class="action-btn mic-btn" onclick="toggleVoiceRecognition()">🎙️ Включить прослушивание звонка (Микрофон)</button>
+        <textarea id="voice-transcript" rows="4" placeholder="Здесь в реальном времени появится текст разговора..."></textarea>
+        <button class="action-btn" onclick="analyzeText(document.getElementById('voice-transcript').value)">Проанализировать расшифровку</button>
+    </div>
+
+    <!-- 3. БИНАРНЫЙ СКАНЕР ФАЙЛОВ APK / EXE -->
+    <div id="tab-file" class="panel" style="display:none;">
+        <p class="panel-desc">Перетащите файл сюда или выберите его вручную. Сайт <strong>не запускает</strong> файл, а безопасно читает его байты в песочнице: вычисляет SHA-256, проверяет скрытые расширения и ищет опасные разрешения Android (перехват СМС) или системные команды Windows.</p>
+        <div class="upload-box" id="drop-zone" onclick="document.getElementById('malware-input').click()">
+            <p style="font-size: 1.15rem; margin: 0 0 8px 0;">📂 Перетащите файл (.apk, .exe, .bat, .zip) сюда</p>
+            <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">или нажмите для безопасного выбора из папки</p>
+            <input type="file" id="malware-input" style="display:none" onchange="scanRealFile(this.files[0])">
+        </div>
+    </div>
+
+    <!-- 4. АНАЛИЗАТОР ФИШИНГОВЫХ ССЫЛОК -->
+    <div id="tab-link" class="panel" style="display:none;">
+        <p class="panel-desc">Вставьте подозрительную ссылку (не переходя по ней!). Сканер проверит домен на подмену букв (тайпосквоттинг), опасные доменные зоны, IP-адреса вместо имени сайта и маскировку под банки или Telegram.</p>
+        <div class="examples">
+            <span style="color:var(--muted); font-size:0.82rem; align-self:center;">Примеры:</span>
+            <button class="ex-btn" onclick="fillInput('link-input', 'http://payme-uz-security-verify.xyz/login')">⚠️ Фейк Payme</button>
+            <button class="ex-btn" onclick="fillInput('link-input', 'https://telegram-premium-gift.top/claim')">⚠️ Фейк Telegram</button>
+            <button class="ex-btn" onclick="fillInput('link-input', 'https://olx-dostavka-oplata.click/card-receive')">⚠️ Фейк OLX доставка</button>
+        </div>
+        <input type="text" id="link-input" placeholder="Вставьте ссылку, например: http://example-bank.xyz/auth">
+        <button class="action-btn" onclick="analyzeUrl()">Проверить ссылку на фишинг</button>
+    </div>
+
+    <!-- 5. ДЕКОДЕР QR-КОДОВ С КАРТИНКИ -->
+    <div id="tab-qr" class="panel" style="display:none;">
+        <p class="panel-desc">Мошенники подменяют QR-коды на парковках, квитанциях и в чатах (квишинг). Загрузите фото или скриншот QR-кода — браузер безопасно извлечет зашитую внутри ссылку без перехода по ней и проверит её на угрозы.</p>
+        <div class="upload-box" onclick="document.getElementById('qr-input').click()">
+            <p style="font-size: 1.15rem; margin: 0 0 8px 0;">📷 Загрузите изображение или скриншот с QR-кодом</p>
+            <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">Поддерживаются PNG, JPG, WEBP</p>
+            <input type="file" id="qr-input" accept="image/*" style="display:none" onchange="scanQrImage(this.files[0])">
+        </div>
+    </div>
+
+    <!-- 6. ПРОВЕРКА БАНКОВСКОЙ КАРТЫ -->
+    <div id="tab-card" class="panel" style="display:none;">
+        <p class="panel-desc">Проверка номера карты по формату и математическому алгоритму Луна. Результат не подтверждает действительность или наличие карты и не является банковским запросом.</p>
+        <input type="text" id="card-input" placeholder="Введите 12–19 цифр карты (например: 8600 9988 7766 5544)" maxlength="23">
+        <button class="action-btn" onclick="analyzeRealCard()">Проверить карту</button>
+    </div>
+
+    <!-- БЛОК РЕЗУЛЬТАТА -->
+    <div id="result"></div>
+
+    <div class="security-note">
+        🔒 <strong>Локальная предварительная проверка:</strong> Текст, ссылки и файлы обрабатываются в браузере; файлы не запускаются и не загружаются этим сайтом. Результат не является полноценной вирусной проверкой и может давать ложные срабатывания.
+    </div>
+</div>
+
+<script>
+    const languageSelect = document.getElementById('language-select');
+
+    function setGoogleTranslateLanguage(code) {
+        if (code === 'ru') {
+            document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
+        } else {
+            document.cookie = 'googtrans=/ru/' + code + '; path=/';
+        }
+        localStorage.setItem('cybershield-language', code);
+        document.documentElement.lang = code;
+        location.reload();
+    }
+
+    languageSelect.addEventListener('change', () => setGoogleTranslateLanguage(languageSelect.value));
+
+    const savedLanguage = localStorage.getItem('cybershield-language') || 'ru';
+    languageSelect.value = savedLanguage;
+    document.documentElement.lang = savedLanguage;
+
+    if (savedLanguage !== 'ru') {
+        document.cookie = 'googtrans=/ru/' + savedLanguage + '; path=/';
+    }
+
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+            pageLanguage: 'ru',
+            includedLanguages: 'uz,en,uk,be,pl,de,fr,es,pt,it,nl,tr,az,kk,ky,tg,tk,ar,fa,he,hi,bn,ur,zh-CN,zh-TW,ja,ko,th,vi,id,ms,fil,el,ro,cs,hu,sv,da,no,fi',
+            autoDisplay: false
+        }, 'google_translate_element');
+    }
+
+    (function loadGoogleTranslate() {
+        if (savedLanguage === 'ru') return;
+        const script = document.createElement('script');
+        script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+        document.head.appendChild(script);
+    })();
+
+    function switchTab(tab, btn) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
+        document.getElementById('result').style.display = 'none';
+        btn.classList.add('active');
+        document.getElementById('tab-' + tab).style.display = 'block';
+    }
+
+    function fillInput(id, text) {
+        document.getElementById(id).value = text;
+    }
+
+    function showResult(level, title, summary, reasons, techHtml = '') {
+        const res = document.getElementById('result');
+        res.className = level === 'danger' ? 'res-danger' : (level === 'warning' ? 'res-warning' : 'res-safe');
+        const color = level === 'danger' ? 'var(--danger)' : (level === 'warning' ? 'var(--warning)' : 'var(--safe)');
+        
+        res.innerHTML = `
+            <div class="res-title" style="color: ${color}">${title}</div>
+            <div class="res-summary">${summary}</div>
+            ${techHtml}
+            ${reasons.length ? `<ul class="reasons">${reasons.map(r => `<li>${r}</li>`).join('')}</ul>` : ''}
+        `;
+        res.style.display = 'block';
+    }
+
+    // Drag & Drop для безопасного перетаскивания файлов
+    const dropZone = document.getElementById('drop-zone');
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) scanRealFile(e.dataTransfer.files[0]);
+    });
+
+    // =========================================================
+    // 1. АНАЛИЗАТОР СМС, ЗВОНКОВ И ВСЕХ СХЕМ МОШЕННИЧЕСТВА
+    // =========================================================
+    function analyzeText(text) {
+        if (!text || !text.trim()) return alert('Введите текст для проверки!');
+        const lower = text.toLowerCase();
+        let score = 0;
+        let reasons = [];
+
+        const rules = [
+            { re: /безопасн\w+ счет|резервн\w+ счет/, pts: 55, msg: 'Схема «Безопасный счет»: сотрудники банков и госструктур никогда не просят переводить деньги на резервные счета.' },
+            { re: /код из смс|парол|cvv|пин-код|трехзначн/, pts: 55, msg: 'Кража кодов доступа: передача кода из СМС дает мошенникам полный доступ к вашему банку.' },
+            { re: /случайно перевел|по ошибке|верните на другую карту|ошибочн\w+ перевод/, pts: 50, msg: 'Схема «Дроп / Ошибочный перевод»: вас пытаются использовать для отмывания украденных денег. Не переводите сами — обратитесь в свой банк.' },
+            { re: /проголосуй|не хватает.*голос|конкурс.*племянниц|подарили.*premium/, pts: 50, msg: 'Схема «Угон Telegram»: ссылка ведет на фишинговый сайт для кражи вашего аккаунта.' },
+            { re: /лайки за деньги|выкуп.*задан|гарантирован\w+ доход|крипто-арбитраж|персональн\w+ аналитик/, pts: 45, msg: 'Схема «Фейковый заработок / Инвестиции»: после первых мелких выплат у вас выманят крупную сумму.' },
+            { re: /срочно|быстрее|немедленно|прямо сейчас|заблокирован/, pts: 25, msg: 'Психологическое давление: мошенники искусственно создают панику, чтобы вы не успели подумать.' },
+            { re: /авари|больниц|полиц|следовател|фсб|цб|центробанк|нацбанк|прокуратур/, pts: 40, msg: 'Запугивание авторитетом силовых ведомств или бедой с родственниками.' },
+            { re: /скинь на карту|переведи на карту|на эту карту|оплати пошлину|получить оплату/, pts: 40, msg: 'Призыв к денежному переводу или вводу данных карты на стороннем ресурсе.' },
+            { re: /\.apk|\.exe|\.bat|посмотри фото|это ты на фото/, pts: 60, msg: 'Распространение трояна: под видом фото или документа вам прислали вирусную программу.' }
+        ];
+
+        rules.forEach(r => {
+            if (r.re.test(lower)) {
+                score += r.pts;
+                reasons.push(r.msg);
+            }
+        });
+
+        if (/(^|[^0-9])(?:\d[ -]?){15,18}(\d)(?![0-9])/.test(text)) {
+            score += 30;
+            reasons.push('В сообщении указан номер банковской карты для перевода.');
+        }
+
+        if (/https?:\/\/\S+/.test(lower)) {
+            score += 20;
+            reasons.push('В тексте есть ссылка — обязательно проверьте её во вкладке «Ссылки (Фишинг)» перед открытием.');
+        }
+
+        if (score >= 40) {
+            showResult('danger', '🚨 ОБНАРУЖЕНО МОШЕННИЧЕСТВО!', 'Высокий риск обмана (Индекс угрозы: ' + Math.min(score, 99) + '%). Прекратите общение и не переводите деньги!', reasons);
+        } else if (score > 0) {
+            showResult('warning', '⚠️ БУДЬТЕ ОСТОРОЖНЫ', 'В сообщении есть подозрительные элементы. Перепроверьте информацию через официальный номер банка или позвоните знакомому лично.', reasons);
+        } else {
+            showResult('safe', '✅ ЯВНЫХ ПРИЗНАКОВ МОШЕННИЧЕСТВА НЕ НАЙДЕНО', 'Текст не содержит известных скриптов социальной инженерии.', ['Всегда сохраняйте бдительность и никому не сообщайте коды из СМС.']);
+        }
+    }
+
+    // =========================================================
+    // 2. ЖИВОЕ РАСПОЗНАВАНИЕ РЕЧИ (WEB SPEECH API)
+    // =========================================================
+    let recognition = null;
+    let isRecording = false;
+
+    function toggleVoiceRecognition() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            return alert('Ваш браузер не поддерживает живое распознавание речи. Откройте сайт в Google Chrome или Edge.');
+        }
+
+        const btn = document.getElementById('mic-btn');
+        const box = document.getElementById('voice-transcript');
+
+        if (isRecording) {
+            recognition.stop();
+            isRecording = false;
+            btn.classList.remove('recording');
+            btn.innerText = '🎙️ Включить прослушивание звонка (Микрофон)';
+            analyzeText(box.value);
+            return;
+        }
+
+        recognition = new SpeechRecognition();
+        const speechLangMap = { ru:'ru-RU', uz:'uz-UZ', en:'en-US', uk:'uk-UA', be:'be-BY', pl:'pl-PL', de:'de-DE', fr:'fr-FR', es:'es-ES', pt:'pt-BR', it:'it-IT', nl:'nl-NL', tr:'tr-TR', az:'az-AZ', kk:'kk-KZ', ky:'ky-KG', tg:'tg-TJ', ar:'ar-SA', fa:'fa-IR', he:'he-IL', hi:'hi-IN', bn:'bn-BD', ur:'ur-PK', 'zh-CN':'zh-CN', 'zh-TW':'zh-TW', ja:'ja-JP', ko:'ko-KR', th:'th-TH', vi:'vi-VN', id:'id-ID', ms:'ms-MY', fil:'fil-PH', el:'el-GR', ro:'ro-RO', cs:'cs-CZ', hu:'hu-HU', sv:'sv-SE', da:'da-DK', no:'nb-NO', fi:'fi-FI' };
+        recognition.lang = speechLangMap[savedLanguage] || 'ru-RU';
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        recognition.onstart = () => {
+            isRecording = true;
+            btn.classList.add('recording');
+            btn.innerText = '🛑 Идет прослушивание... Нажмите, чтобы остановить';
+        };
+
+        recognition.onresult = (event) => {
+            let text = '';
+            for (let i = 0; i < event.results.length; i++) {
+                text += event.results[i].transcript + ' ';
+            }
+            box.value = text;
+            if (/безопасн\w+ счет|код из смс|переведи на карту|попал в авари|случайно перевел/i.test(text)) {
+                analyzeText(text);
+            }
+        };
+
+        recognition.onerror = (e) => {
+            alert('Ошибка микрофона: ' + e.error);
+            isRecording = false;
+            btn.classList.remove('recording');
+        };
+
+        recognition.start();
+    }
+
+    // =========================================================
+    // 3. РЕАЛЬНЫЙ БИНАРНЫЙ АНАЛИЗАТОР APK / EXE И SHA-256
+    // =========================================================
+    async function scanRealFile(file) {
+        if (!file) return;
+        
+        const buffer = await file.arrayBuffer();
+        const bytes = new Uint8Array(buffer);
+        
+        const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+        const sha256 = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+        const magic = Array.from(bytes.slice(0, 4)).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+        const fileName = file.name.toLowerCase();
+        if (file.size > 100 * 1024 * 1024) {
+            return showResult('warning', '⚠️ ФАЙЛ СЛИШКОМ БОЛЬШОЙ ДЛЯ ПОЛНОГО АНАЛИЗА', 'Проверены первые сигнатуры и имя файла, но анализ всех байтов ограничен 100 МБ для защиты браузера.', [
+                `Размер файла: ${(file.size / 1024 / 1024).toFixed(1)} МБ.`,
+                'Не запускайте файл, если он прислан незнакомцем. Проверьте его в офлайн-антивирусе или установочной службе системы.'
+            ], `<div class="tech-box"><strong>Имя файла:</strong> ${file.name}<br><strong>SHA-256:</strong> ${sha256}</div>`);
+        }
+        
+        const decoder = new TextDecoder('latin1');
+        const rawStrings = decoder.decode(bytes);
+
+        let riskScore = 0;
+        let reasons = [];
+
+        if (/\.(jpg|jpeg|png|pdf|doc|docx|mp4|txt)\.(apk|exe|bat|cmd|vbs|scr|msi)$/i.test(fileName)) {
+            riskScore += 85;
+            reasons.push('КРИТИЧНО: Двойное расширение! Вирус маскируется под безопасный документ или фотографию.');
+        }
+
+        const isPE = magic.startsWith('4D5A'); // MZ
+        const isZIP = magic.startsWith('504B0304'); // PK
+
+        if (isPE && !fileName.endsWith('.exe') && !fileName.endsWith('.dll')) {
+            riskScore += 90;
+            reasons.push('ПОДМЕНА ТИПА: Внутри файла скрыт исполняемый код Windows (заголовок MZ), хотя расширение изменено!');
+        }
+
+        if (fileName.endsWith('.apk') || (isZIP && rawStrings.includes('AndroidManifest.xml'))) {
+            reasons.push('Определен установочный пакет Android (APK). Проверены системные разрешения:');
+            const perms = [
+                { key: 'RECEIVE_SMS', desc: 'Перехват входящих СМС (кража кодов подтверждения банков).' },
+                { key: 'READ_SMS', desc: 'Чтение всех СМС-сообщений на смартфоне.' },
+                { key: 'BIND_ACCESSIBILITY_SERVICE', desc: 'Управление экраном и нажатиями (позволяет вирусу самому переводить деньги).' },
+                { key: 'SYSTEM_ALERT_WINDOW', desc: 'Наложение поддельных окон поверх банковских приложений.' },
+                { key: 'REQUEST_INSTALL_PACKAGES', desc: 'Скрытая установка других вредоносных программ.' }
+            ];
+            let found = 0;
+            perms.forEach(p => {
+                if (rawStrings.includes(p.key)) {
+                    riskScore += 35;
+                    found++;
+                    reasons.push(`⚠️ Опасное право [${p.key}]: ${p.desc}`);
+                }
+            });
+            if (found === 0) {
+                riskScore += 25;
+                reasons.push('Опасных шпионских разрешений в заголовках не найдено, но установка APK из мессенджеров всегда опасна.');
+            }
+        }
+
+        if (isPE || fileName.endsWith('.exe') || fileName.endsWith('.bat') || fileName.endsWith('.ps1')) {
+            const exeInd = [
+                { key: 'powershell', desc: 'Вызов скрытых скриптов PowerShell.' },
+                { key: 'cmd.exe', desc: 'Запуск системной командной строки Windows.' },
+                { key: 'VirtualAlloc', desc: 'Прямая работа с памятью (характерно для инъекции вредоносного кода).' },
+                { key: 'RegSetValue', desc: 'Изменение системного реестра (добавление в автозагрузку).' }
+            ];
+            exeInd.forEach(ind => {
+                if (rawStrings.includes(ind.key)) {
+                    riskScore += 25;
+                    reasons.push(`⚠️ Системный вызов [${ind.key}]: ${ind.desc}`);
+                }
+            });
+        }
+
+        const techHtml = `
+            <div class="tech-box">
+                <strong>Имя файла:</strong> ${file.name} (${(file.size / 1024).toFixed(1)} КБ)<br>
+                <strong>Сигнатура (Magic Bytes):</strong> ${magic || 'Пустой файл'}<br>
+                <strong>SHA-256 отпечаток:</strong> ${sha256}
+            </div>
+        `;
+
+        if (riskScore >= 60) {
+            showResult('danger', '🚨 ОБНАРУЖЕНА УГРОЗА! НЕ ЗАПУСКАЙТЕ ФАЙЛ!', 'Файл содержит признаки вредоносного ПО или опасных системных прав. Удалите его!', reasons, techHtml);
+        } else if (riskScore >= 20) {
+            showResult('warning', '⚠️ ПОТЕНЦИАЛЬНО ОПАСНЫЙ ИСПОЛНЯЕМЫЙ ФАЙЛ', 'Это программа, а не фото или документ. Не открывайте, если получили файл от незнакомца или в чате.', reasons, techHtml);
+        } else {
+            showResult('safe', '✅ ВЫРАЖЕННЫХ ЛОКАЛЬНЫХ СИГНАТУР НЕ НАЙДЕНО', 'Это предварительная эвристическая проверка, а не гарантия безопасности. Подозрения не исключаются шифрованием, упаковкой или изменением кода.', [
+                ...reasons,
+                'Для дополнительной проверки загрузите только отпечаток SHA-256 в офлайн-антивирус или официальный облачный сканер.'
+            ], techHtml);
+        }
+    }
+
+    // =========================================================
+    // 4. АНАЛИЗАТОР ФИШИНГОВЫХ ССЫЛОК (URL-СКАНЕР)
+    // =========================================================
+    function analyzeUrl(customUrl = null) {
+        const rawUrl = (customUrl || document.getElementById('link-input').value).trim();
+        if (!rawUrl) return alert('Вставьте ссылку для проверки!');
+
+        let urlObj;
+        try {
+            urlObj = new URL(rawUrl.startsWith('http') ? rawUrl : 'http://' + rawUrl);
+        } catch (e) {
+            return alert('Некорректный формат ссылки!');
+        }
+
+        const host = urlObj.hostname.toLowerCase();
+        const full = urlObj.href.toLowerCase();
+        let score = 0;
+        let reasons = [];
+
+        if (urlObj.protocol === 'http:') {
+            score += 25;
+            reasons.push('Отсутствует шифрование (используется устаревший HTTP вместо HTTPS).');
+        }
+
+        if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) {
+            score += 60;
+            reasons.push('Вместо нормального домена используется прямой IP-адрес — явный признак вредоносного сервера.');
+        }
+
+        if (host.startsWith('xn--')) {
+            score += 65;
+            reasons.push('Обнаружен Punycode (xn--): мошенники подменили латинские буквы похожими символами из другого алфавита.');
+        }
+
+        const riskyTlds = ['.xyz', '.top', '.click', '.club', '.online', '.site', '.icu', '.tk', '.ml', '.ga'];
+        if (riskyTlds.some(tld => host.endsWith(tld))) {
+            score += 40;
+            reasons.push('Домен зарегистрирован в дешевой зоне повышенного риска, которую массово используют фишеры.');
+        }
+
+        const brands = ['payme', 'click', 'uzum', 'humo', 'uzcard', 'telegram', 'olx', 'sber', 'tinkoff', 'gosuslugi', 'mygov'];
+        const officialDomains = ['payme.uz', 'click.uz', 'uzum.uz', 'uzumbank.uz', 'telegram.org', 't.me', 'olx.uz', 'my.gov.uz'];
+        
+        const mentionsBrand = brands.some(b => host.includes(b));
+        const isOfficial = officialDomains.some(od => host === od || host.endsWith('.' + od));
+
+        if (mentionsBrand && !isOfficial) {
+            score += 70;
+            reasons.push('КРИТИЧНО: Поддельный домен! Ссылка маскируется под известный сервис, но не принадлежит официальному сайту.');
+        }
+
+        if (/(login|verify|card|oplata|konkurs|golos|gift|premium|bonus|receive)/.test(full) && !isOfficial) {
+            score += 30;
+            reasons.push('В адресе ссылки используются типичные фишинговые слова (авторизация, карта, подарок, голосование).');
+        }
+
+        const techHtml = `<div class="tech-box"><strong>Анализируемый домен:</strong> ${host}<br><strong>Протокол:</strong> ${urlObj.protocol.replace(':', '').toUpperCase()}</div>`;
+
+        if (score >= 50) {
+            showResult('danger', '🚨 ОПАСНАЯ ФИШИНГОВАЯ ССЫЛКА!', 'Не переходите по этому адресу и не вводите там свои пароли или данные карты!', reasons, techHtml);
+        } else if (score >= 25) {
+            showResult('warning', '⚠️ ПОДОЗРИТЕЛЬНАЯ ССЫЛКА', 'Сайт вызывает сомнения. Убедитесь в его подлинности перед вводом любых личных данных.', reasons, techHtml);
+        } else {
+            showResult('safe', '✅ ЯВНЫХ ПРИЗНАКОВ ФИШИНГА НЕ ВЫЯВЛЕНО', 'Домен выглядит корректно.', ['Тем не менее, всегда проверяйте адресную строку браузера перед оплатой.'], techHtml);
+        }
+    }
+
+    // =========================================================
+    // 5. ДЕКОДЕР QR-КОДОВ С КАРТИНКИ (BARCODE DETECTOR API)
+    // =========================================================
+    async function scanQrImage(file) {
+        if (!file) return;
+
+        if (!('BarcodeDetector' in window)) {
+            return showResult('warning', '⚠️ ВСТРОЕННЫЙ СКАНЕР QR НЕДОСТУПЕН', 'Откройте эту страницу в актуальном Google Chrome или Microsoft Edge и проверьте доступность BarcodeDetector. Используйте обрезанный скриншот с одним четким QR-кодом.', [
+                'Если библиотека браузера недоступна, не вводите содержимое QR-кода вручную до проверки ссылки.',
+                'Не устанавливайте неизвестные приложения и не разрешайте платежи по QR-коду из незнакомого источника.'
+            ]);
+        }
+
+        try {
+            const detector = new BarcodeDetector({ formats: ['qr_code'] });
+            const bitmap = await createImageBitmap(file);
+            const barcodes = await detector.detect(bitmap);
+
+            if (!barcodes.length) {
+                return showResult('warning', '⚠️ QR-КОД НЕ НАЙДЕН', 'На загруженном изображении не удалось распознать четкий QR-код. Попробуйте обрезать скриншот поближе к коду.', []);
+            }
+
+            const decodedText = barcodes[0].rawValue;
+            const techHtml = `<div class="tech-box"><strong>Содержимое QR-кода:</strong> ${decodedText}</div>`;
+
+            if (/^https?:\/\//i.test(decodedText)) {
+                showResult('warning', '🔍 QR-КОД РАСШИФРОВАН — ПРОВЕРЯЕМ ССЫЛКУ...', 'Внутри QR-кода зашита веб-ссылка. Запускаем антифишинг-анализ...', [], techHtml);
+                setTimeout(() => {
+                    document.getElementById('link-input').value = decodedText;
+                    analyzeUrl(decodedText);
+                }, 800);
+            } else {
+                showResult('safe', '✅ QR-КОД РАСШИФРОВАН (ТЕКСТ)', 'Внутри кода находится обычный текст без перехода на сайты.', [], techHtml);
+            }
+        } catch (err) {
+            showResult('warning', '⚠️ ОШИБКА ЧТЕНИЯ ИЗОБРАЖЕНИЯ', 'Не удалось обработать картинку: ' + err.message, []);
+        }
+    }
+
+    // =========================================================
+    // 6. ПРОВЕРКА БАНКОВСКОЙ КАРТЫ (АЛГОРИТМ ЛУНА + BIN)
+    // =========================================================
+    function analyzeRealCard() {
+        const raw = document.getElementById('card-input').value.replace(/\D/g, '');
+        if (raw.length < 12 || raw.length > 19) return alert('Введите от 12 до 19 цифр номера карты!');
+
+        let sum = 0;
+        const shouldDoubleFromRight = raw.length % 2 === 0;
+        for (let i = 0; i < raw.length; i++) {
+            let digit = parseInt(raw[i], 10);
+            if (shouldDoubleFromRight === (i % 2 === 0)) {
+                digit *= 2;
+                if (digit > 9) digit -= 9;
+            }
+            sum += digit;
+        }
+        const isLuhnValid = (sum % 10 === 0);
+
+        let system = 'Неизвестная платежная система';
+        if (raw.startsWith('8600')) system = 'Uzcard';
+        else if (raw.startsWith('9860')) system = 'Humo';
+        else if (raw.startsWith('4')) system = 'Visa';
+        else if (/^5[1-5]/.test(raw) || /^222[1-9]/.test(raw)) system = 'Mastercard';
+        else if (/^220[0-4]/.test(raw)) system = 'МИР';
+        else if (/^34/.test(raw) || /^37/.test(raw)) system = 'American Express';
+        else if (/^62/.test(raw)) system = 'UnionPay';
+        else if (/^6011/.test(raw) || /^65/.test(raw)) system = 'Discover';
+
+        const reasons = [
+            `Платежная система (BIN): <strong>${system}</strong>`,
+            `Контрольная сумма (Алгоритм Луна): <strong>${isLuhnValid ? 'Валидна' : 'Ошибка контрольной суммы'}</strong>`,
+            'Алгоритм Луна проверяет только структуру номера: он не проверяет баланс, владельца и не подтверждает выпущенность карты.',
+            'Помните: банки и госорганы никогда не просят переводить деньги на карты физических лиц.'
+        ];
+
+        showResult(isLuhnValid ? 'warning' : 'danger', '💳 РЕЗУЛЬТАТ ПРОВЕРКИ НОМЕРА КАРТЫ', 'Анализ формата и контрольной суммы завершен.', reasons);
+    }
+</script>
+
+</body>
+</html>
