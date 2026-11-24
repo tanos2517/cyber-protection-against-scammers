@@ -81,8 +81,28 @@
             padding: 7px 9px;
             cursor: pointer;
         }
-        #google_translate_element, .goog-te-banner-frame { display: none !important; }
-        body { top: 0 !important; }
+        #google_translate_element {
+            position: fixed;
+            left: -10000px;
+            top: 0;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+        .goog-te-banner-frame,
+        .goog-te-banner-frame.skiptranslate,
+        iframe.goog-te-banner-frame,
+        iframe.skiptranslate[id$=".container"],
+        .goog-te-menu-frame,
+        #goog-gt-tt,
+        .goog-te-balloon-frame {
+            display: none !important;
+            visibility: hidden !important;
+        }
+        html, body { top: 0 !important; }
+        .screenshot-tool { margin: 0 0 14px; }
+        .screenshot-tool .ex-btn { color: var(--accent); }
+        #screenshot-status { color: var(--muted); font-size: 0.85rem; margin-top: 8px; }
 
         /* Навигация */
         .tabs {
@@ -292,6 +312,7 @@
             <option value="fi">Suomi</option>
         </select>
     </div>
+    <div id="translation-status" role="status" aria-live="polite"></div>
     <div id="google_translate_element"></div>
 
     <div class="tabs">
@@ -306,6 +327,7 @@
     <!-- 1. ПРОВЕРКА СМС И СХЕМ СОЦИАЛЬНОЙ ИНЖЕНЕРИИ -->
     <div id="tab-sms" class="panel">
         <p class="panel-desc">Вставьте текст сообщения из Telegram, WhatsApp или СМС. Система распознает уловки банковских мошенников, «ошибочные переводы», фейковые голосования и схемы с «легким заработком».</p>
+        <div class="screenshot-tool"><button class="ex-btn" onclick="chooseScreenshot('sms')">📷 Загрузить скриншот для проверки</button></div>
         <div class="examples">
             <span style="color:var(--muted); font-size:0.82rem; align-self:center;">Тест схем:</span>
             <button class="ex-btn" onclick="fillInput('sms-input', 'Срочно! С вашей карты 8600****1234 пытаются списать деньги. Переведите средства на безопасный счет 9860 1122 3344 5566 или продиктуйте код из СМС.')">⚠️ Безопасный счет</button>
@@ -320,6 +342,7 @@
     <!-- 2. ЖИВОЙ ЗВОНОК (МИКРОФОН) -->
     <div id="tab-voice" class="panel" style="display:none;">
         <p class="panel-desc">Включите громкую связь при подозрительном звонке и нажмите кнопку ниже. Браузер в реальном времени расшифрует речь собеседника через микрофон и подаст сигнал тревоги при попытке обмана.</p>
+        <div class="screenshot-tool"><button class="ex-btn" onclick="chooseScreenshot('voice')">📷 Загрузить скриншот переписки</button></div>
         <p class="panel-desc">Внимание: встроенное распознавание речи может отправлять аудио и распознавать текст с помощью облачного сервиса браузера. Не используйте микрофон рядом с паролями или кодами подтверждения.</p>
         <button id="mic-btn" class="action-btn mic-btn" onclick="toggleVoiceRecognition()">🎙️ Включить прослушивание звонка (Микрофон)</button>
         <textarea id="voice-transcript" rows="4" placeholder="Здесь в реальном времени появится текст разговора..."></textarea>
@@ -329,6 +352,7 @@
     <!-- 3. БИНАРНЫЙ СКАНЕР ФАЙЛОВ APK / EXE -->
     <div id="tab-file" class="panel" style="display:none;">
         <p class="panel-desc">Перетащите файл сюда или выберите его вручную. Сайт <strong>не запускает</strong> файл, а безопасно читает его байты в песочнице: вычисляет SHA-256, проверяет скрытые расширения и ищет опасные разрешения Android (перехват СМС) или системные команды Windows.</p>
+        <div class="screenshot-tool"><button class="ex-btn" onclick="chooseScreenshot('file')">📷 Загрузить скриншот сообщения о файле</button></div>
         <div class="upload-box" id="drop-zone" onclick="document.getElementById('malware-input').click()">
             <p style="font-size: 1.15rem; margin: 0 0 8px 0;">📂 Перетащите файл (.apk, .exe, .bat, .zip) сюда</p>
             <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">или нажмите для безопасного выбора из папки</p>
@@ -339,6 +363,7 @@
     <!-- 4. АНАЛИЗАТОР ФИШИНГОВЫХ ССЫЛОК -->
     <div id="tab-link" class="panel" style="display:none;">
         <p class="panel-desc">Вставьте подозрительную ссылку (не переходя по ней!). Сканер проверит домен на подмену букв (тайпосквоттинг), опасные доменные зоны, IP-адреса вместо имени сайта и маскировку под банки или Telegram.</p>
+        <div class="screenshot-tool"><button class="ex-btn" onclick="chooseScreenshot('link')">📷 Загрузить скриншот со ссылкой</button></div>
         <div class="examples">
             <span style="color:var(--muted); font-size:0.82rem; align-self:center;">Примеры:</span>
             <button class="ex-btn" onclick="fillInput('link-input', 'http://payme-uz-security-verify.xyz/login')">⚠️ Фейк Payme</button>
@@ -352,6 +377,7 @@
     <!-- 5. ДЕКОДЕР QR-КОДОВ С КАРТИНКИ -->
     <div id="tab-qr" class="panel" style="display:none;">
         <p class="panel-desc">Мошенники подменяют QR-коды на парковках, квитанциях и в чатах (квишинг). Загрузите фото или скриншот QR-кода — браузер безопасно извлечет зашитую внутри ссылку без перехода по ней и проверит её на угрозы.</p>
+        <div class="screenshot-tool"><button class="ex-btn" onclick="chooseScreenshot('qr')">📷 Проверить скриншот с QR-кодом</button></div>
         <div class="upload-box" onclick="document.getElementById('qr-input').click()">
             <p style="font-size: 1.15rem; margin: 0 0 8px 0;">📷 Загрузите изображение или скриншот с QR-кодом</p>
             <p style="color: var(--muted); font-size: 0.88rem; margin: 0;">Поддерживаются PNG, JPG, WEBP</p>
@@ -362,15 +388,18 @@
     <!-- 6. ПРОВЕРКА БАНКОВСКОЙ КАРТЫ -->
     <div id="tab-card" class="panel" style="display:none;">
         <p class="panel-desc">Проверка номера карты по формату и математическому алгоритму Луна. Результат не подтверждает действительность или наличие карты и не является банковским запросом.</p>
+        <div class="screenshot-tool"><button class="ex-btn" onclick="chooseScreenshot('card')">📷 Распознать текст со скриншота</button></div>
         <input type="text" id="card-input" placeholder="Введите 12–19 цифр карты (например: 8600 9988 7766 5544)" maxlength="23">
         <button class="action-btn" onclick="analyzeRealCard()">Проверить карту</button>
     </div>
 
     <!-- БЛОК РЕЗУЛЬТАТА -->
     <div id="result"></div>
+    <input type="file" id="screenshot-input" accept="image/png,image/jpeg,image/webp" hidden onchange="analyzeScreenshot(this.files[0])">
+    <div id="screenshot-status" aria-live="polite"></div>
 
     <div class="security-note">
-        🔒 <strong>Локальная предварительная проверка:</strong> Текст, ссылки и файлы обрабатываются в браузере; файлы не запускаются и не загружаются этим сайтом. Результат не является полноценной вирусной проверкой и может давать ложные срабатывания.
+        🔒 <strong>Предварительная проверка:</strong> SMS, ссылки, файлы и скриншоты анализируются в браузере; сайт не загружает файлы и изображения. Для перевода Google Translate передается текст страницы. Не включайте перевод, если обрабатываете конфиденциальную информацию. Проверка не заменяет антивирус и может ошибаться.
     </div>
 </div>
 
@@ -378,14 +407,20 @@
     const languageSelect = document.getElementById('language-select');
 
     function setGoogleTranslateLanguage(code) {
-        if (code === 'ru') {
-            document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
-        } else {
-            document.cookie = 'googtrans=/ru/' + code + '; path=/';
-        }
         localStorage.setItem('cybershield-language', code);
         document.documentElement.lang = code;
-        location.reload();
+        if (code === 'ru') {
+            document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
+            location.reload();
+            return;
+        }
+        document.cookie = 'googtrans=/ru/' + (googleLanguageMap[code] || code) + '; path=/; SameSite=Lax';
+        const translateSelect = document.querySelector('.goog-te-combo');
+        if (translateSelect) {
+            applyGoogleTranslateLanguage(code);
+        } else {
+            location.reload();
+        }
     }
 
     languageSelect.addEventListener('change', () => setGoogleTranslateLanguage(languageSelect.value));
@@ -393,23 +428,63 @@
     const savedLanguage = localStorage.getItem('cybershield-language') || 'ru';
     languageSelect.value = savedLanguage;
     document.documentElement.lang = savedLanguage;
+    const googleLanguageMap = { fil: 'tl' };
 
     if (savedLanguage !== 'ru') {
-        document.cookie = 'googtrans=/ru/' + savedLanguage + '; path=/';
+        document.cookie = 'googtrans=/ru/' + (googleLanguageMap[savedLanguage] || savedLanguage) + '; path=/; SameSite=Lax';
     }
 
     function googleTranslateElementInit() {
         new google.translate.TranslateElement({
             pageLanguage: 'ru',
-            includedLanguages: 'uz,en,uk,be,pl,de,fr,es,pt,it,nl,tr,az,kk,ky,tg,tk,ar,fa,he,hi,bn,ur,zh-CN,zh-TW,ja,ko,th,vi,id,ms,fil,el,ro,cs,hu,sv,da,no,fi',
+            includedLanguages: 'uz,en,uk,be,pl,de,fr,es,pt,it,nl,tr,az,kk,ky,tg,tk,ar,fa,he,hi,bn,ur,zh-CN,zh-TW,ja,ko,th,vi,id,ms,tl,el,ro,cs,hu,sv,da,no,fi',
             autoDisplay: false
         }, 'google_translate_element');
+        hideGoogleTranslateBanner();
+        if (savedLanguage !== 'ru') {
+            applyGoogleTranslateLanguage(savedLanguage);
+        }
+    }
+
+    function hideGoogleTranslateBanner() {
+        document.querySelectorAll('.goog-te-banner-frame, iframe.goog-te-banner-frame, iframe.skiptranslate[id$=".container"], .goog-te-menu-frame, #goog-gt-tt, .goog-te-balloon-frame').forEach(element => {
+            if (getComputedStyle(element).display !== 'none') {
+                element.style.setProperty('display', 'none', 'important');
+            }
+        });
+        if (document.body && document.body.style.top !== '0px') {
+            document.body.style.setProperty('top', '0px', 'important');
+        }
+    }
+
+    new MutationObserver(hideGoogleTranslateBanner).observe(document.documentElement, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['class', 'style']
+    });
+
+    function applyGoogleTranslateLanguage(code, attempts = 0) {
+        const translateSelect = document.querySelector('.goog-te-combo');
+        if (!translateSelect) {
+            if (attempts < 25) {
+                setTimeout(() => applyGoogleTranslateLanguage(code, attempts + 1), 200);
+            } else {
+                document.getElementById('translation-status').textContent = 'Переводчик не ответил. Попробуйте обновить страницу или проверьте доступ к Google Translate.';
+            }
+            return;
+        }
+        translateSelect.value = googleLanguageMap[code] || code;
+        translateSelect.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
     (function loadGoogleTranslate() {
         if (savedLanguage === 'ru') return;
         const script = document.createElement('script');
         script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+        script.onerror = () => {
+            document.getElementById('translation-status').textContent = 'Не удалось загрузить переводчик. Проверьте подключение к интернету и попробуйте снова.';
+        };
         document.head.appendChild(script);
     })();
 
@@ -437,6 +512,119 @@
             ${reasons.length ? `<ul class="reasons">${reasons.map(r => `<li>${r}</li>`).join('')}</ul>` : ''}
         `;
         res.style.display = 'block';
+    }
+
+    let screenshotTab = 'sms';
+    let tesseractLoadPromise = null;
+    const ocrLanguageMap = {
+        ru:'rus', uz:'uzb', en:'eng', uk:'ukr', be:'bel', pl:'pol', de:'deu', fr:'fra',
+        es:'spa', pt:'por', it:'ita', nl:'nld', tr:'tur', az:'aze', kk:'kaz', ky:'kir',
+        tg:'tgk', tk:'tuk', ar:'ara', fa:'fas', he:'heb', hi:'hin', bn:'ben', ur:'urd',
+        'zh-CN':'chi_sim', 'zh-TW':'chi_tra', ja:'jpn', ko:'kor', th:'tha', vi:'vie',
+        id:'ind', ms:'msa', fil:'fil', el:'ell', ro:'ron', cs:'ces', hu:'hun', sv:'swe',
+        da:'dan', no:'nor', fi:'fin'
+    };
+
+    function chooseScreenshot(tab) {
+        screenshotTab = tab;
+        const input = document.getElementById('screenshot-input');
+        input.value = '';
+        input.click();
+    }
+
+    function loadTesseract() {
+        if (window.Tesseract) return Promise.resolve(window.Tesseract);
+        if (tesseractLoadPromise) return tesseractLoadPromise;
+
+        tesseractLoadPromise = new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+            script.onload = () => window.Tesseract ? resolve(window.Tesseract) : reject(new Error('Распознаватель текста не загрузился.'));
+            script.onerror = () => reject(new Error('Не удалось загрузить распознаватель. Проверьте подключение к интернету.'));
+            document.head.appendChild(script);
+        });
+        tesseractLoadPromise = tesseractLoadPromise.catch(error => {
+            tesseractLoadPromise = null;
+            throw error;
+        });
+        return tesseractLoadPromise;
+    }
+
+    function escapeHtml(value) {
+        return value.replace(/[&<>"']/g, char => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        })[char]);
+    }
+
+    async function analyzeScreenshot(file) {
+        const status = document.getElementById('screenshot-status');
+        if (!file) return;
+        if (!/^image\/(png|jpeg|webp)$/.test(file.type)) {
+            status.textContent = 'Выберите изображение PNG, JPG или WEBP.';
+            return;
+        }
+        if (file.size > 15 * 1024 * 1024) {
+            status.textContent = 'Изображение больше 15 МБ. Уменьшите его размер и попробуйте снова.';
+            return;
+        }
+        if (screenshotTab === 'qr') {
+            status.textContent = 'Проверяем QR-код локально в браузере...';
+            await scanQrImage(file);
+            status.textContent = 'Готово. Изображение обрабатывалось в этом браузере.';
+            return;
+        }
+
+        status.textContent = 'Загрузка движка распознавания и языковой модели. Изображение обрабатывается в браузере и не отправляется на сайт.';
+        let worker;
+        try {
+            const tesseract = await loadTesseract();
+            const language = ocrLanguageMap[languageSelect.value] || 'eng';
+            worker = await tesseract.createWorker(`${language}+eng`, 1, {
+                langPath: 'https://tessdata.projectnaptha.com/4.0.0'
+            });
+            const { data: { text, confidence } } = await worker.recognize(file);
+            const recognizedText = text.trim();
+            if (!recognizedText) {
+                showResult('warning', '⚠️ ТЕКСТ НА СКРИНШОТЕ НЕ РАСПОЗНАН', 'Попробуйте загрузить более четкое изображение, обрезать лишние области или выбрать язык текста на скриншоте.', []);
+                status.textContent = 'Текст не распознан.';
+                return;
+            }
+
+            if (screenshotTab === 'card') {
+                const candidate = recognizedText.match(/(?:\d[\s-]*){12,19}/);
+                if (candidate) {
+                    document.getElementById('card-input').value = candidate[0].replace(/\D/g, '');
+                    showResult('warning', '🔎 НОМЕР РАСПОЗНАН — ПРОВЕРЬТЕ ЦИФРЫ', 'Распознавание изображения может ошибаться. Сверьте номер вручную и нажмите «Проверить карту».', [
+                        `Точность OCR: ${Math.round(confidence)}%. Номер введен только в поле на этой странице и не отправлялся.`
+                    ]);
+                } else {
+                    showResult('warning', '⚠️ НОМЕР КАРТЫ НЕ НАЙДЕН', 'Попробуйте обрезать изображение так, чтобы на нем остались только четко видимые цифры карты.', [
+                        `Распознанный текст: <span>${escapeHtml(recognizedText)}</span>`
+                    ]);
+                }
+            } else if (screenshotTab === 'link') {
+                const match = recognizedText.match(/(?:https?:\/\/|www\.)[^\s<>"']+/i);
+                if (match) {
+                    const url = match[0].replace(/[),.!?]+$/, '');
+                    document.getElementById('link-input').value = url;
+                    analyzeUrl(url);
+                } else {
+                    analyzeText(recognizedText);
+                }
+            } else {
+                const targetId = screenshotTab === 'voice' ? 'voice-transcript' : 'sms-input';
+                document.getElementById(targetId).value = recognizedText;
+                analyzeText(recognizedText);
+            }
+            status.textContent = `Распознавание завершено (${Math.round(confidence)}% уверенности). Скриншот обработан локально.`;
+        } catch (error) {
+            status.textContent = 'Не удалось распознать изображение.';
+            showResult('warning', '⚠️ ОШИБКА РАСПОЗНАВАНИЯ', escapeHtml(error.message), [
+                'Проверьте интернет-соединение: движок и языковая модель загружаются с CDN, но сам скриншот никуда не отправляется.'
+            ]);
+        } finally {
+            if (worker) await worker.terminate();
+        }
     }
 
     // Drag & Drop для безопасного перетаскивания файлов
@@ -570,7 +758,7 @@
             return showResult('warning', '⚠️ ФАЙЛ СЛИШКОМ БОЛЬШОЙ ДЛЯ ПОЛНОГО АНАЛИЗА', 'Проверены первые сигнатуры и имя файла, но анализ всех байтов ограничен 100 МБ для защиты браузера.', [
                 `Размер файла: ${(file.size / 1024 / 1024).toFixed(1)} МБ.`,
                 'Не запускайте файл, если он прислан незнакомцем. Проверьте его в офлайн-антивирусе или установочной службе системы.'
-            ], `<div class="tech-box"><strong>Имя файла:</strong> ${file.name}<br><strong>SHA-256:</strong> ${sha256}</div>`);
+            ], `<div class="tech-box"><strong>Имя файла:</strong> <span class="notranslate">${escapeHtml(file.name)}</span><br><strong>SHA-256:</strong> ${sha256}</div>`);
         }
         
         const decoder = new TextDecoder('latin1');
@@ -632,7 +820,7 @@
 
         const techHtml = `
             <div class="tech-box">
-                <strong>Имя файла:</strong> ${file.name} (${(file.size / 1024).toFixed(1)} КБ)<br>
+                <strong>Имя файла:</strong> <span class="notranslate">${escapeHtml(file.name)}</span> (${(file.size / 1024).toFixed(1)} КБ)<br>
                 <strong>Сигнатура (Magic Bytes):</strong> ${magic || 'Пустой файл'}<br>
                 <strong>SHA-256 отпечаток:</strong> ${sha256}
             </div>
@@ -706,7 +894,7 @@
             reasons.push('В адресе ссылки используются типичные фишинговые слова (авторизация, карта, подарок, голосование).');
         }
 
-        const techHtml = `<div class="tech-box"><strong>Анализируемый домен:</strong> ${host}<br><strong>Протокол:</strong> ${urlObj.protocol.replace(':', '').toUpperCase()}</div>`;
+        const techHtml = `<div class="tech-box"><strong>Анализируемый домен:</strong> <span class="notranslate">${escapeHtml(host)}</span><br><strong>Протокол:</strong> ${urlObj.protocol.replace(':', '').toUpperCase()}</div>`;
 
         if (score >= 50) {
             showResult('danger', '🚨 ОПАСНАЯ ФИШИНГОВАЯ ССЫЛКА!', 'Не переходите по этому адресу и не вводите там свои пароли или данные карты!', reasons, techHtml);
@@ -740,7 +928,7 @@
             }
 
             const decodedText = barcodes[0].rawValue;
-            const techHtml = `<div class="tech-box"><strong>Содержимое QR-кода:</strong> ${decodedText}</div>`;
+            const techHtml = `<div class="tech-box"><strong>Содержимое QR-кода:</strong> <span class="notranslate">${escapeHtml(decodedText)}</span></div>`;
 
             if (/^https?:\/\//i.test(decodedText)) {
                 showResult('warning', '🔍 QR-КОД РАСШИФРОВАН — ПРОВЕРЯЕМ ССЫЛКУ...', 'Внутри QR-кода зашита веб-ссылка. Запускаем антифишинг-анализ...', [], techHtml);
